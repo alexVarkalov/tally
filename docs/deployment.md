@@ -158,8 +158,10 @@ so systemd is the source of truth in production.
 
 ## 6) BotFather and access
 
-Paste the texts from `botfather_texts.txt` into `/setcommands`, `/setdescription`, `/setabouttext`. Keep
-privacy mode on (default). Admins listed in `ADMIN_USER_IDS` have access immediately; everyone else gets
+Paste the texts from `botfather_texts.txt` into `/setcommands`, `/setdescription`, `/setabouttext`, or set
+them from the host with the Bot API (`setMyCommands`, `setMyDescription`, `setMyShortDescription`), which is
+how it was done on 2026-09-15. `getMyCommands` shows what is registered; clients cache the list for a while.
+Keep privacy mode on (default). Admins listed in `ADMIN_USER_IDS` have access immediately; everyone else gets
 "This is a private bot" until `/allow_user <telegram_id>` (their ID shows up in `/users` after they press
 `/start`). Trackers are global: every allowed user sees the same menu.
 
