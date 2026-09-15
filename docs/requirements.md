@@ -50,7 +50,7 @@ worksheet, old or new, has this header in row 1; the two old ones have ~500 rows
 
 | Year | Month | Day | Created at | Username | Comment |
 |---|---|---|---|---|---|
-| 2026 | 9 | 15 | 2026-09-15 14:39:01 | alex_voltaire | |
+| 2026 | 9 | 15 | 2026-09-15 14:39:01 | owner_handle | |
 
 - `Year`, `Month`, `Day`: the **counted day** as three integer cells (no zero padding, `Month` is `1`-`12`).
   This is the date the user tapped, not the write time. Rows are appended in write order, so the counted
@@ -197,7 +197,7 @@ Everything in `docs/playbook.md` §1–§5, §7, §8, §10, §11.1–11.2 applie
 - Python 3.14, `uv`, `hatchling`; package `tally`, script `tally` (`tally.__main__:main`). Dependencies:
   `python-telegram-bot[job-queue]>=22,<23`, `gspread>=6.1,<7`, `sqlalchemy`, `psycopg`. Dev: `pytest`,
   `pytest-asyncio`, `ruff`, `pre-commit`. No Mini App, no FastAPI, no Docker.
-- Repository `tally` (private, owner's GitHub account), default branch `main`. This `docs/` directory is
+- Repository `tally` (public, `alexVarkalov/tally`; no host facts, IDs, tokens or key files ever go in), default branch `main`. This `docs/` directory is
   already in the repo; the first commit is `init: skeleton from playbook`, then one commit per
   layer/feature, messages `<area>: <imperative summary>`.
 - Layers: `handlers → services → repositories → persistence`, plus `sheets.py` (copy lifelogger's
