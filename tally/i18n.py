@@ -49,6 +49,7 @@ _MESSAGES: Mapping[str, Mapping[str, str]] = {
         "write_failed": "Could not write, try again",
         "stale_tracker": "That tracker is no longer available",
         "invalid_date": "That date is not valid",
+        "unknown_callback": "That button is from an older version; use the menu below",
         "recorded": "✅ {label} · {day} recorded.",
         "recorded_counts": " {month}: {total} (that day: {on_day})",
         "stats_title": "📊 <b>{month}</b>",

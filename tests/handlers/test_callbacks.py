@@ -11,7 +11,7 @@ from telegram.error import BadRequest
 
 from tally.handlers import callbacks as callbacks_module
 from tally.handlers import common as common_module
-from tally.handlers.callbacks import authorized_query, on_menu, on_record
+from tally.handlers.callbacks import authorized_query, on_menu, on_record, on_unknown
 from tally.sheets import SheetsError
 from tests.helpers import make_settings, make_tracker, make_user
 
@@ -237,3 +237,26 @@ async def test_unchanged_message_edit_is_not_an_error(owner: None) -> None:
     update.callback_query.edit_message_text.side_effect = BadRequest("Chat not found")
     with pytest.raises(BadRequest):
         await on_menu(update, _ctx())
+
+
+@pytest.mark.asyncio
+async def test_unknown_callback_alerts_and_shows_menu(owner: None) -> None:
+    update = _update("MY COUNTER")
+
+    await on_unknown(update, _ctx())
+
+    update.callback_query.answer.assert_awaited_once_with(
+        "That button is from an older version; use the menu below", show_alert=True
+    )
+    assert update.callback_query.edit_message_text.await_args.args[0] == "What do you want to record?"
+
+
+@pytest.mark.asyncio
+async def test_unknown_callback_refuses_outsiders(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(callbacks_module, "record_user_seen", AsyncMock(return_value=make_user(is_allowed=False)))
+    update = _update("MY COUNTER")
+
+    await on_unknown(update, _ctx())
+
+    update.callback_query.answer.assert_awaited_once_with("Not allowed", show_alert=True)
+    update.callback_query.edit_message_text.assert_not_awaited()

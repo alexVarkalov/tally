@@ -121,6 +121,16 @@ async def on_record(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
 
 
+async def on_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Any callback no other handler claimed, e.g. buttons left in the chat by the bot's previous version."""
+    authorized = await authorized_query(update, context)
+    if authorized is None:
+        return
+    query, user = authorized
+    logger.info("unknown callback data %r", query.data)
+    await _stale(query, context, user, t("unknown_callback"))
+
+
 async def _stale(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, user: BotUser, text: str) -> None:
     await query.answer(text, show_alert=True)
     await show_menu(query, context, user)

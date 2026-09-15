@@ -1,6 +1,6 @@
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler
 
-from tally.handlers.callbacks import on_menu, on_record
+from tally.handlers.callbacks import on_menu, on_record, on_unknown
 from tally.handlers.commands import (
     cmd_allow_user,
     cmd_block_user,
@@ -45,4 +45,5 @@ def register_handlers(application: Application) -> None:
     application.add_handler(CallbackQueryHandler(on_record, pattern=r"^rec:"))
     application.add_handler(CallbackQueryHandler(on_stats, pattern=r"^stats:"))
     application.add_handler(CallbackQueryHandler(on_menu, pattern=r"^menu:"))
+    application.add_handler(CallbackQueryHandler(on_unknown))  # last: everything the prefixes above did not claim
     application.add_error_handler(on_error)

@@ -34,7 +34,8 @@ def test_register_handlers_wires_every_handler_and_the_error_handler() -> None:
         "allow_user",
         "block_user",
     }
-    patterns = {h.pattern.pattern for h in handlers if isinstance(h, CallbackQueryHandler)}
-    assert patterns == {"^rec:", "^stats:", "^menu:"}
-    assert len(handlers) == 19
+    callbacks = [h for h in handlers if isinstance(h, CallbackQueryHandler)]
+    assert [h.pattern.pattern for h in callbacks[:-1]] == ["^rec:", "^stats:", "^menu:"]
+    assert callbacks[-1].pattern is None and handlers[-1] is callbacks[-1]
+    assert len(handlers) == 20
     app.add_error_handler.assert_called_once_with(on_error)
