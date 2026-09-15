@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from tally.config import Settings
-from tally.persistence import BotUser
+from tally.persistence import BotUser, Tracker
 
 
 def make_user(**overrides: object) -> BotUser:
@@ -37,3 +37,17 @@ def make_settings(**overrides: object) -> Settings:
     }
     defaults.update(overrides)
     return Settings(**defaults)
+
+
+def make_tracker(**overrides: object) -> Tracker:
+    defaults: dict[str, object] = {
+        "id": 1,
+        "key": "my",
+        "label": "MY",
+        "worksheet": "my-counter",
+        "position": 1,
+        "archived_at": None,
+        "created_at": datetime(2026, 1, 1, tzinfo=UTC),
+    }
+    defaults.update(overrides)
+    return Tracker(**defaults)

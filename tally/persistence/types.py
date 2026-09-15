@@ -17,3 +17,18 @@ class BotUser:
     created_at: datetime
     updated_at: datetime
     last_seen_at: datetime
+
+
+@dataclass(frozen=True)
+class Tracker:
+    id: int
+    key: str
+    label: str
+    worksheet: str
+    position: int
+    archived_at: datetime | None
+    created_at: datetime
+
+    @property
+    def is_active(self) -> bool:
+        return self.archived_at is None

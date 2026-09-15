@@ -1,3 +1,3 @@
-from tally.persistence.types import BotUser
+from tally.persistence.types import BotUser, Tracker
 
-__all__ = ["BotUser"]
+__all__ = ["BotUser", "Tracker"]

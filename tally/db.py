@@ -6,14 +6,15 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from tally.persistence import BotUser
+from tally.persistence import BotUser, Tracker
 from tally.persistence.models import Base
+from tally.persistence.trackers import TrackerStore
 from tally.persistence.users import UserStore
 
-__all__ = ["BotUser", "Database"]
+__all__ = ["BotUser", "Database", "Tracker"]
 
 
-class Database(UserStore):
+class Database(UserStore, TrackerStore):
     """PostgreSQL persistence via SQLAlchemy ORM; public methods stay async."""
 
     def __init__(self, url: str) -> None:

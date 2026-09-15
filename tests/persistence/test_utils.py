@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from types import SimpleNamespace
 
-from tally.persistence.utils import to_user, utc_now
+from tally.persistence.utils import to_tracker, to_user, utc_now
 
 
 def test_utc_now_is_aware_utc() -> None:
@@ -33,3 +33,20 @@ def test_to_user_maps_every_field_and_coerces_bool() -> None:
     assert user.timezone == "Europe/Warsaw"
     assert user.is_allowed is True
     assert user.last_seen_at == now
+
+
+def test_to_tracker_maps_every_field() -> None:
+    now = datetime(2026, 1, 1, tzinfo=UTC)
+    record = SimpleNamespace(
+        id=3, key="gym", label="🏋️ Gym", worksheet="gym", position=3, archived_at=now, created_at=now
+    )
+
+    tracker = to_tracker(record)
+
+    assert tracker.id == 3
+    assert tracker.key == "gym"
+    assert tracker.label == "🏋️ Gym"
+    assert tracker.worksheet == "gym"
+    assert tracker.position == 3
+    assert tracker.archived_at == now
+    assert tracker.is_active is False

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from tally.persistence.models import UserRecord
-from tally.persistence.types import BotUser
+from tally.persistence.models import TrackerRecord, UserRecord
+from tally.persistence.types import BotUser, Tracker
 
 
 def utc_now() -> datetime:
@@ -23,4 +23,16 @@ def to_user(record: UserRecord) -> BotUser:
         created_at=record.created_at,
         updated_at=record.updated_at,
         last_seen_at=record.last_seen_at,
+    )
+
+
+def to_tracker(record: TrackerRecord) -> Tracker:
+    return Tracker(
+        id=record.id,
+        key=record.key,
+        label=record.label,
+        worksheet=record.worksheet,
+        position=record.position,
+        archived_at=record.archived_at,
+        created_at=record.created_at,
     )
