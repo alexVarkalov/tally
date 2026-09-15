@@ -27,6 +27,7 @@ def _ctx() -> SimpleNamespace:
     stats_service = AsyncMock()
     stats_service.fetch_days.return_value = [date(2026, 9, 15), date(2026, 9, 14), date(2026, 8, 1)]
     return SimpleNamespace(
+        bot=AsyncMock(),
         application=SimpleNamespace(
             bot_data={
                 "settings": make_settings(),
@@ -35,7 +36,7 @@ def _ctx() -> SimpleNamespace:
                 "record_service": AsyncMock(),
                 "stats_service": stats_service,
             }
-        )
+        ),
     )
 
 
@@ -152,6 +153,8 @@ async def test_date_tap_write_failure_alerts_and_restores_keyboard(owner: None) 
     assert query.edit_message_reply_markup.await_args_list[-1].kwargs == {"reply_markup": "ORIGINAL"}
     query.edit_message_text.assert_not_awaited()
     context.application.bot_data["stats_service"].fetch_days.assert_not_awaited()
+    context.bot.send_message.assert_awaited_once()
+    assert "SheetsError" in context.bot.send_message.await_args.kwargs["text"]
 
 
 @pytest.mark.asyncio

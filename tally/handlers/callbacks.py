@@ -11,6 +11,7 @@ from telegram.ext import ContextTypes
 
 from tally.config import Settings
 from tally.handlers.common import edit_message, record_user_seen, show_menu, user_has_access, user_now
+from tally.handlers.errors import report_error
 from tally.handlers.menu import choose_day_text, date_keyboard, saving_keyboard, tracker_menu_keyboard
 from tally.i18n import t
 from tally.persistence import BotUser
@@ -97,10 +98,11 @@ async def on_record(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         record_service: RecordService = context.application.bot_data["record_service"]
         try:
             await record_service.record(tracker, day, now, user)
-        except SheetsError:
+        except SheetsError as exc:
             logger.exception("could not append to %r for tracker %r", tracker.worksheet, tracker.key)
             await query.answer(t("write_failed"), show_alert=True)
             await query.edit_message_reply_markup(reply_markup=original_markup)
+            await report_error(context, exc)
             return
 
         await query.answer()

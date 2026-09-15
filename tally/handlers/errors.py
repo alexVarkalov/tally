@@ -1,4 +1,8 @@
-"""Global PTB error handler: log every unhandled exception and ping the admins, rate-limited per error class."""
+"""Global PTB error handler: log every unhandled exception and ping the admins, rate-limited per error class.
+
+report_error() is also called from handlers that catch a SheetsError themselves (a failed append, an
+unavailable worksheet) so the owner hears about it once without the bot crashing the flow.
+"""
 
 from __future__ import annotations
 
@@ -25,7 +29,11 @@ async def on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.error("unhandled exception while processing %r", update, exc_info=error)
     if error is None:
         return
+    await report_error(context, error)
 
+
+async def report_error(context: ContextTypes.DEFAULT_TYPE, error: BaseException) -> None:
+    """Send the error to every admin, at most once per error class per NOTIFY_COOLDOWN."""
     settings: Settings | None = context.application.bot_data.get("settings")
     if settings is None or not settings.admin_user_ids:
         return

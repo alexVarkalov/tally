@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from tally.handlers.errors import NOTIFY_COOLDOWN, on_error, should_notify
+from tally.handlers.errors import NOTIFY_COOLDOWN, on_error, report_error, should_notify
 from tests.helpers import make_settings
 
 
@@ -59,3 +59,15 @@ async def test_on_error_survives_send_failure() -> None:
     await on_error(object(), context)
 
     assert context.bot.send_message.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_report_error_shares_the_cooldown_with_on_error() -> None:
+    context = _ctx(RuntimeError("boom"))
+
+    await report_error(context, RuntimeError("first"))
+    await on_error(object(), context)
+    await report_error(context, ValueError("other"))
+
+    assert context.bot.send_message.await_count == 4
+    assert "first" in context.bot.send_message.await_args_list[0].kwargs["text"]
