@@ -8,14 +8,18 @@ import pytest
 
 from tally.handlers import commands as commands_module
 from tally.handlers import common as common_module
-from tally.handlers.commands import cmd_help, cmd_start, cmd_timezone, cmd_users
-from tests.helpers import make_settings, make_user
+from tally.handlers.commands import cmd_help, cmd_menu, cmd_start, cmd_timezone, cmd_users
+from tests.helpers import make_settings, make_tracker, make_user
 
 
 def _ctx(args: list[str] | None = None) -> SimpleNamespace:
+    tracker_service = AsyncMock()
+    tracker_service.list_active.return_value = [make_tracker(key="my", label="MY")]
     return SimpleNamespace(
         args=list(args or []),
-        application=SimpleNamespace(bot_data={"settings": make_settings(), "user_service": AsyncMock()}),
+        application=SimpleNamespace(
+            bot_data={"settings": make_settings(), "user_service": AsyncMock(), "tracker_service": tracker_service}
+        ),
     )
 
 
@@ -55,7 +59,45 @@ async def test_cmd_start_happy_path(monkeypatch: pytest.MonkeyPatch) -> None:
     await cmd_start(update, _ctx())
 
     update.effective_message.reply_html.assert_awaited_once()
-    assert "Tally" in update.effective_message.reply_html.await_args.args[0]
+    assert update.effective_message.reply_html.await_args.args[0] == "What do you want to record?"
+    markup = update.effective_message.reply_html.await_args.kwargs["reply_markup"]
+    assert [b.callback_data for row in markup.inline_keyboard for b in row][0] == "rec:my"
+
+
+@pytest.mark.asyncio
+async def test_cmd_start_with_empty_registry_points_at_new_and_attach(monkeypatch: pytest.MonkeyPatch) -> None:
+    update = _update()
+    context = _ctx()
+    context.application.bot_data["tracker_service"].list_active.return_value = []
+    monkeypatch.setattr(common_module, "record_user_seen", AsyncMock(return_value=make_user(is_allowed=True)))
+
+    await cmd_start(update, context)
+
+    text = update.effective_message.reply_html.await_args.args[0]
+    assert "/new" in text and "/attach" in text
+
+
+@pytest.mark.asyncio
+async def test_cmd_menu(monkeypatch: pytest.MonkeyPatch) -> None:
+    update = _update()
+    monkeypatch.setattr(common_module, "record_user_seen", AsyncMock(return_value=make_user(is_allowed=True)))
+
+    await cmd_menu(update, _ctx())
+
+    update.effective_message.reply_html.assert_awaited_once()
+    assert update.effective_message.reply_html.await_args.kwargs["reply_markup"] is not None
+
+
+@pytest.mark.asyncio
+async def test_cmd_menu_access_disabled_or_no_message(monkeypatch: pytest.MonkeyPatch) -> None:
+    update = _update()
+    monkeypatch.setattr(common_module, "record_user_seen", AsyncMock(return_value=make_user(is_allowed=False)))
+
+    await cmd_menu(update, _ctx())
+    await cmd_menu(_update(with_message=False), _ctx())
+
+    update.effective_message.reply_html.assert_not_awaited()
+    update.effective_message.reply_text.assert_awaited_once()
 
 
 @pytest.mark.asyncio

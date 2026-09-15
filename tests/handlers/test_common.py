@@ -15,9 +15,15 @@ from tally.handlers.common import (
     require_access,
     require_admin,
     user_has_access,
+    user_now,
     user_timezone,
 )
 from tests.helpers import make_settings, make_user
+
+
+def test_user_now_is_in_the_user_timezone() -> None:
+    now = user_now(make_user(timezone="Europe/Warsaw"), make_settings())
+    assert now.tzinfo is not None and now.tzinfo.key == "Europe/Warsaw"
 
 
 def test_user_timezone_falls_back_to_default_then_utc() -> None:

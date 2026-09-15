@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from telegram.ext import CommandHandler
+from telegram.ext import CallbackQueryHandler, CommandHandler
 
 from tally.handlers import register_handlers
 from tally.handlers.errors import on_error
@@ -16,6 +16,8 @@ def test_register_handlers_wires_every_handler_and_the_error_handler() -> None:
 
     handlers = [call.args[0] for call in app.add_handler.call_args_list]
     commands = {name for h in handlers if isinstance(h, CommandHandler) for name in h.commands}
-    assert commands == {"start", "help", "timezone", "tz", "users", "allow_user", "block_user"}
-    assert len(handlers) == 7
+    assert commands == {"start", "menu", "help", "timezone", "tz", "users", "allow_user", "block_user"}
+    patterns = {h.pattern.pattern for h in handlers if isinstance(h, CallbackQueryHandler)}
+    assert patterns == {"^rec:", "^menu:"}
+    assert len(handlers) == 10
     app.add_error_handler.assert_called_once_with(on_error)

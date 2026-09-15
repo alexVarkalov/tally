@@ -11,12 +11,14 @@ from tally.handlers.common import (
     parse_target_user_id,
     require_access,
     require_admin,
+    send_menu,
 )
 from tally.i18n import t
 from tally.services import UserService
 
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Records the user; the owner gets the menu, anyone else "This is a private bot" and nothing more."""
     if update.effective_message is None:
         return
 
@@ -24,7 +26,18 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if user is None:
         return
 
-    await update.effective_message.reply_html(t("help_intro"))
+    await send_menu(update.effective_message, context, user)
+
+
+async def cmd_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
+
+    user = await require_access(update, context)
+    if user is None:
+        return
+
+    await send_menu(update.effective_message, context, user)
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

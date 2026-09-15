@@ -32,6 +32,23 @@ _MESSAGES: Mapping[str, Mapping[str, str]] = {
             "I do not recognize that timezone. Use an IANA name like Europe/Warsaw, Europe/Moscow, or UTC."
         ),
         "timezone_updated": "Timezone updated to {timezone}.",
+        "menu_title": "What do you want to record?",
+        "menu_empty": (
+            "No trackers yet. Create one with <code>/new &lt;key&gt; [label]</code> or attach an existing "
+            "worksheet with <code>/attach &lt;key&gt; &lt;worksheet&gt; [label]</code>."
+        ),
+        "choose_day": "Which day for <b>{label}</b>?",
+        "button_today": "Today · {day}",
+        "button_yesterday": "Yesterday · {day}",
+        "button_back": "◀ Back",
+        "button_stats": "📊 Stats",
+        "button_saving": "⏳ saving…",
+        "button_menu": "Menu",
+        "button_prev_month": "◀ {month}",
+        "button_next_month": "{month} ▶",
+        "write_failed": "Could not write, try again",
+        "stale_tracker": "That tracker is no longer available",
+        "invalid_date": "That date is not valid",
         "recorded": "✅ {label} · {day} recorded.",
         "recorded_counts": " {month}: {total} (that day: {on_day})",
         "stats_title": "📊 <b>{month}</b>",

@@ -3,13 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from telegram import Update
+from telegram import CallbackQuery, InlineKeyboardMarkup, Message, Update
+from telegram.error import BadRequest
 from telegram.ext import ContextTypes
 
 from tally.config import Settings
+from tally.handlers.menu import tracker_menu_keyboard, tracker_menu_text
 from tally.i18n import t
-from tally.persistence import BotUser
-from tally.services import UserService, resolve_timezone
+from tally.persistence import BotUser, Tracker
+from tally.services import TrackerService, UserService, resolve_timezone
 from tally.services import user_has_access as _user_has_access
 
 
@@ -87,3 +89,36 @@ def format_user_display(user: BotUser) -> str:
         return f"@{user.username}"
     full_name = " ".join(part for part in (user.first_name, user.last_name) if part)
     return full_name or "no profile name"
+
+
+def user_now(user: BotUser, settings: Settings) -> datetime:
+    """The current time in the user's timezone: "today" and the date buttons are computed from it."""
+    return datetime.now(tz=user_timezone(user, settings))
+
+
+async def edit_message(query: CallbackQuery, text: str, reply_markup: InlineKeyboardMarkup | None) -> None:
+    """Edit the tapped message in place; an unchanged message is not an error."""
+    try:
+        await query.edit_message_text(text, reply_markup=reply_markup, parse_mode="HTML")
+    except BadRequest as exc:
+        if "not modified" not in str(exc).lower():
+            raise
+
+
+async def send_menu(message: Message, context: ContextTypes.DEFAULT_TYPE, user: BotUser) -> None:
+    trackers = await _active_trackers(context)
+    now = user_now(user, context.application.bot_data["settings"])
+    await message.reply_html(
+        tracker_menu_text(trackers), reply_markup=tracker_menu_keyboard(trackers, (now.year, now.month))
+    )
+
+
+async def show_menu(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE, user: BotUser) -> None:
+    trackers = await _active_trackers(context)
+    now = user_now(user, context.application.bot_data["settings"])
+    await edit_message(query, tracker_menu_text(trackers), tracker_menu_keyboard(trackers, (now.year, now.month)))
+
+
+async def _active_trackers(context: ContextTypes.DEFAULT_TYPE) -> list[Tracker]:
+    tracker_service: TrackerService = context.application.bot_data["tracker_service"]
+    return await tracker_service.list_active()
