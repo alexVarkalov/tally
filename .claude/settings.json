@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run pytest*)",
+      "Bash(uv run --extra dev pytest*)",
+      "Bash(uv run --extra dev ruff check*)",
+      "Bash(uv run --extra dev ruff format*)",
+      "Bash(uv run --extra dev pre-commit run*)",
+      "Bash(uv run tally*)",
+      "Bash(uv sync*)",
+      "Bash(uv lock*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(ls*)",
+      "Bash(find*)",
+      "Bash(grep*)",
+      "Bash(rg*)",
+      "Bash(cat*)",
+      "Bash(pwd)",
+      "Bash(tree*)",
+      "Bash(ssh pi 'systemctl status*)",
+      "Bash(ssh pi 'journalctl*)",
+      "Bash(ssh pi 'free*)",
+      "Bash(ssh vocab 'systemctl status*)",
+      "Bash(ssh vocab 'journalctl*)",
+      "Bash(ssh vocab 'free*)"
+    ]
+  }
+}

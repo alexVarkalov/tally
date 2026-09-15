@@ -1,0 +1,47 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Test/coverage artifacts
+.coverage
+
+# SQLite/local data
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Copyrighted source material and derived data (never committed to this public repo)
+*.pdf
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Mini App frontend (webapp/): dependencies and Vite build output
+webapp/node_modules/
+webapp/dist/
+
+# Tooling / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Google service-account credentials (deploy out-of-band, like .env)
+*service-account*.json
+credentials/
