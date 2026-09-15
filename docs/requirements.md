@@ -267,7 +267,7 @@ No tracker configuration in the environment: trackers exist only in the registry
 
 ## 7) Acceptance checklist
 
-- [ ] `uv run --extra dev pytest` green; ruff clean; CI green on GitHub.
+- [x] `uv run --extra dev pytest` green; ruff clean; CI green on GitHub.
 - [ ] `/start` from a non-admin id → "private bot" reply; from the owner → the menu (empty-registry text).
 - [ ] `/attach my my-counter MY` and `/attach our our-counter OUR` succeed; `/attach x users` is refused
       with the header shown; `/trackers` lists both with correct month and total counts.
@@ -284,7 +284,7 @@ No tracker configuration in the environment: trackers exist only in the registry
 - [ ] Rename the `gym` tab by hand in Sheets → `/trackers` shows `⚠`, `/stats` shows it unavailable, other
       trackers still work; the admin gets one error ping.
 - [ ] Stop network to Google → alert "could not write", no crash, the keyboard survives.
-- [ ] `journalctl` shows no bot token anywhere.
+- [x] `journalctl` shows no bot token anywhere.
 - [ ] Two quick taps on the same date button produce one row.
 
 ## 8) Decisions already taken (do not reopen)

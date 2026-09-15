@@ -15,8 +15,21 @@ Built in one session, layer by layer, one commit per layer (`git log` is the cha
 | Stats | `services/stats.py` (`parse_rows`, `month_summary`, `render_month`, `StatsService`) | `tests/services/test_stats.py` |
 | Bot | `handlers/menu.py`, `handlers/callbacks.py`, `handlers/stats.py`, `handlers/trackers.py` | mirrored |
 
-Not yet done: deployment and the switch-over (requirements §10), which need the host and the owner. The
-acceptance checklist in requirements §7 is to be walked through on the Pi after `/attach`.
+Deployed the same day on the owner's Raspberry Pi as `tally-bot.service` (recipe: `docs/deployment.md`).
+Switch-over completed 2026-09-15: token rotated in BotFather, both historic worksheets attached
+(`/attach my my-counter MY`, `/attach our our-counter OUR`), one record verified end to end in the sheet
+(three integer cells, a real date cell, the handle, an empty comment; confirmation showed the right counts),
+`daily_counter_bot` stopped, disabled and removed from the host, its GitHub repository archived.
+
+Acceptance (requirements §7) verified on the host: tests/CI green; the owner's `/start` menu; both attaches
+with correct `/trackers` counts; the record flow (today) with the menu re-attached; clean journal (no token,
+no warnings). Only unit-tested so far, to be tried when convenient: `/start` from a non-admin id, `/new` on a
+fresh tab, `/attach` against the foreign `users` tab, archive/unarchive, the hand-renamed tab, cutting the
+network, and the double tap.
+
+One defect found during the switch-over and fixed before the first record: buttons left in the chat by the
+old bot reached Tally with foreign callback data and were dropped silently (a spinner, no reply). A catch-all
+`CallbackQueryHandler` now answers them with an alert and the menu.
 
 ## Decisions (2026-09-15)
 
@@ -46,6 +59,9 @@ acceptance checklist in requirements §7 is to be walked through on the Pi after
   buttons and the stats do not depend on the host locale.
 - **Timezone default comes from `DEFAULT_TIMEZONE`**, not UTC: `handlers/common.py::user_timezone` takes
   the settings, the only signature change in the copied user layer.
+- **Unknown callback data is answered, not dropped.** A catch-all `CallbackQueryHandler` registered last
+  alerts "button from an older version" and re-shows the menu; without it a tap on one of the old bot's
+  buttons (same Telegram identity, old messages still in the chat) left the client spinning.
 - **Shared kit deferred** (requirements §6.1): the copied user/config/test layer is kept byte-identical
   to lifelogger where possible (`db.py`, `persistence/users.py`, `repositories/users.py`, the fakes);
   `services/users.py` lost `set_locale` and `i18n.py` is a single-locale table with `t(key, **kwargs)`.

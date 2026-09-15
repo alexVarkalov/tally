@@ -51,10 +51,12 @@ existing one whose row 1 is exactly that header. The bot never renames, clears o
 ## 2) Database
 
 ```bash
-sudo -u postgres createuser --pwprompt tally      # choose a password, keep it out of git and chat
+# a generated password keeps it out of the shell history; it lands only in ~/.pgpass and .env
+PW=$(openssl rand -hex 16)
+sudo -u postgres psql -qc "CREATE ROLE tally LOGIN PASSWORD '$PW'"
 sudo -u postgres createdb -O tally tally
 # let psql on the host find the password: ~/.pgpass, mode 600
-echo "localhost:5432:tally:tally:<password>" >> ~/.pgpass && chmod 600 ~/.pgpass
+echo "localhost:5432:tally:tally:$PW" >> ~/.pgpass && chmod 600 ~/.pgpass
 psql -h localhost -U tally tally -c "select 1;"
 ```
 
@@ -161,20 +163,27 @@ privacy mode on (default). Admins listed in `ADMIN_USER_IDS` have access immedia
 "This is a private bot" until `/allow_user <telegram_id>` (their ID shows up in `/users` after they press
 `/start`). Trackers are global: every allowed user sees the same menu.
 
-## 7) Switch-over from the legacy `daily_counter_bot` (requirements §10)
+## 7) Switch-over from the legacy `daily_counter_bot` (done 2026-09-15, kept as history)
 
-The 2022 bot ran on the same Pi with two hard-coded counters whose worksheets (`my-counter`,
-`our-counter`) hold the history and stay in use. In order:
+The 2022 bot ran on the same Pi under its own service user with two hard-coded counters whose worksheets
+(`my-counter`, `our-counter`) hold the history and stay in use. What the switch-over involved:
 
-1. **Same bot identity, new token.** In BotFather `/revoke` the token; the old process (which logs every
-   request with the token) fails with `401 Unauthorized` from that moment, so there is no polling conflict.
-   Put the new token into the new checkout's `.env`, then steps 4–5.
-2. `/attach my my-counter MY` and `/attach our our-counter OUR`; `/trackers` must show both with the
-   expected month and total counts. Record one event and verify the row in the sheet.
-3. `sudo systemctl disable --now daily_counter_bot`, then remove its checkout, state directory and unit
-   file (owner's go-ahead required), `daemon-reload`. Archive the old GitHub repository.
-4. Update the command list, description and about text in BotFather from `botfather_texts.txt`.
-5. Do **not** delete the old `users` worksheet; the bot ignores it.
+1. **Secrets reused, not recreated.** The service-account key was copied from the old checkout into
+   `data/service-account.json` (that account is the one the spreadsheet is shared with). The old bot opened
+   the spreadsheet by *title*, so the ID for `GOOGLE_SPREADSHEET_ID` was resolved once with a read-only
+   gspread call: `gspread.service_account(filename=...).open("<title>").id`. `ADMIN_USER_IDS` came from the
+   sibling bot's `.env` on the same host.
+2. **Same bot identity, new token.** BotFather `/revoke`; the old process failed with
+   `InvalidToken: Unauthorized` from that moment (no polling conflict), the new token went into `.env`, then
+   steps 4–5. The unit was installed before the token existed and started only afterwards.
+3. `/attach my my-counter MY` and `/attach our our-counter OUR`, `/trackers`, then one record verified in
+   the sheet (`Year/Month/Day` as numbers, `Created at` a date cell) and in the chat confirmation.
+4. Buttons left in the chat by the old bot carried foreign callback data; the first tap on one of them was
+   dropped silently. Fixed the same day with a catch-all callback handler (alert + menu) before retrying.
+5. `sudo systemctl disable --now daily_counter_bot`; a tarball of `/opt/daily_counter_bot` went to
+   `~/backups` (mode 600, it contains the key and the old `users.csv`), then the directory and the unit file
+   were removed and `daemon-reload` run. The service user was left in place. The GitHub repository was
+   archived. The old `users` worksheet in the spreadsheet stays; the bot ignores it.
 
 ## 8) Update flow
 

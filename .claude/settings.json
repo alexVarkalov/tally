@@ -24,6 +24,7 @@
       "Bash(ssh pi 'systemctl status*)",
       "Bash(ssh pi 'journalctl*)",
       "Bash(ssh pi 'free*)",
+      "Bash(ssh pi 'psql*)",
       "Bash(ssh vocab 'systemctl status*)",
       "Bash(ssh vocab 'journalctl*)",
       "Bash(ssh vocab 'free*)"
