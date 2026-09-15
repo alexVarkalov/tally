@@ -1,0 +1,23 @@
+# Texts for @BotFather. Keep in sync with tally/handlers/__init__.py and tally/i18n.py (help_commands).
+
+## /setcommands
+
+menu - pick a tracker and a day
+stats - this month, all trackers
+trackers - list trackers
+new - create a tracker: /new <key> [label]
+attach - attach a worksheet: /attach <key> <worksheet> [label]
+rename - change a label: /rename <key> <label>
+archive - hide a tracker: /archive <key>
+unarchive - show a tracker again: /unarchive <key>
+detach - remove from the registry: /detach <key> confirm
+timezone - set your timezone: /timezone Europe/Warsaw
+help - what this bot does
+
+## /setdescription
+
+Tally records events per day into a Google Sheet, one worksheet per tracker, and shows monthly summaries. Tap a tracker, then a day. Private bot.
+
+## /setabouttext
+
+Private tally bot: one tap per event, one worksheet per tracker, monthly stats from the sheet.

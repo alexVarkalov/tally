@@ -48,6 +48,21 @@ Every tracker worksheet has this header in row 1: `Year | Month | Day | Created 
 `Comment` is never written by the bot (reserved for hand edits). Worksheets are created only by `/new`; the
 bot never renames, clears or deletes a worksheet, and never touches tabs it does not know.
 
+## Commands
+
+| Command | What it does |
+|---|---|
+| `/start`, `/menu` | The tracker menu: tap a tracker, then a day |
+| `/stats` | This month for every active tracker, with month navigation |
+| `/trackers` | List trackers with this month's and total counts |
+| `/new <key> [label]` | Create a tracker and its worksheet |
+| `/attach <key> <worksheet> [label]` | Register an existing worksheet (its header must match the contract) |
+| `/rename <key> <label>` | Change the label |
+| `/archive <key>`, `/unarchive <key>` | Hide from or restore to the menu and stats; data stays |
+| `/detach <key> confirm` | Remove from the registry; the worksheet is untouched |
+| `/timezone [IANA]` | Show or set your timezone |
+| `/users`, `/allow_user <id>`, `/block_user <id>` | Admin: the allow-list |
+
 ## Deployment
 
 See `docs/deployment.md` (systemd unit, `uv` venv, local PostgreSQL; written for a Raspberry Pi).

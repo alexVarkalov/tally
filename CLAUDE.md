@@ -37,8 +37,15 @@ handlers  →  services  →  repositories  →  persistence (store mixins + ORM
 5. Persistence returns frozen dataclasses (`BotUser`, `Tracker`); each store method is a sync `_x_sync`
    body run via `asyncio.to_thread`. Migrations are additive only (`create_all` + `ADD COLUMN IF NOT EXISTS`).
 6. Pure domain modules, unit-tested without mocks: `services/records.py` (row builder, date choices),
-   `services/stats.py` (parse rows, month summary, render), `handlers/menu.py` (keyboard builders).
+   `services/stats.py` (parse rows, month summary, render), `services/dates.py` (English day/month names),
+   `handlers/menu.py` (keyboard builders).
 7. New feature = persistence → repository → service → handler, tests at each layer, one commit.
+
+Modules by responsibility: `handlers/commands.py` (start, menu, help, timezone, admin), `handlers/callbacks.py`
+(`rec:` and `menu:` callbacks, the recording flow with its per-chat lock), `handlers/stats.py` (`/stats`,
+`stats:`), `handlers/trackers.py` (`/trackers`, `/new`, `/attach`, `/rename`, `/archive`, `/unarchive`,
+`/detach`), `handlers/errors.py` (`on_error` and `report_error`), `sheets.py` (`SheetsClient`, `HEADER`,
+`header_matches`, `escape_cell`, `SheetsError`).
 
 ### Conventions worth knowing before editing
 - **Spreadsheet contract** (requirements §3): header `Year | Month | Day | Created at | Username | Comment`,
@@ -56,7 +63,10 @@ handlers  →  services  →  repositories  →  persistence (store mixins + ORM
 - **Time**: DB timestamps are UTC-aware; "today" and the date buttons are computed in the user's timezone
   (`/timezone`, default `DEFAULT_TIMEZONE`).
 - **Errors**: `handlers/errors.py` logs every unhandled exception and pings the admins (one per error class
-  per 10 minutes). `httpx` logs at WARNING so the token never reaches the journal.
+  per 10 minutes); handlers that catch a `SheetsError` themselves call `report_error` so the owner still
+  hears about it. `httpx` logs at WARNING so the token never reaches the journal.
+- **The date tap answers the callback after the append** (alert on failure, plain answer on success) and
+  swaps the keyboard for a saving placeholder meanwhile; see `docs/trackers/README.md` for why.
 - **Secrets**: `.env`, `data/` and `*service-account*.json` are gitignored. The repo is public: no IPs,
   hostnames, spreadsheet IDs, tokens or key files in code, docs, tests or commit messages.
 
