@@ -32,6 +32,16 @@ _MESSAGES: Mapping[str, Mapping[str, str]] = {
             "I do not recognize that timezone. Use an IANA name like Europe/Warsaw, Europe/Moscow, or UTC."
         ),
         "timezone_updated": "Timezone updated to {timezone}.",
+        "recorded": "✅ {label} · {day} recorded.",
+        "recorded_counts": " {month}: {total} (that day: {on_day})",
+        "stats_title": "📊 <b>{month}</b>",
+        "stats_empty": "No active trackers. Use /new or /attach.",
+        "stats_tracker_line": "<b>{label}</b> — {total}",
+        "stats_tracker_unavailable": "<b>{label}</b> — ⚠ unavailable",
+        "stats_day_line": "  {day} · {count}",
+        "stats_year_part": "{label} {total}",
+        "stats_year_part_unavailable": "{label} ⚠",
+        "stats_year_line": "Year {year}: {parts}",
     },
 }
 
