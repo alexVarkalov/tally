@@ -27,7 +27,8 @@ async def _post_init(application: Application) -> None:
         service_account_file=settings.google_service_account_file,
         spreadsheet_id=settings.google_spreadsheet_id,
     )
-    application.bot_data["tracker_service"] = TrackerService(TrackerRepository(db), sheets)
+    tracker_service = TrackerService(TrackerRepository(db), sheets)
+    application.bot_data["tracker_service"] = tracker_service
     application.bot_data["record_service"] = RecordService(sheets)
     application.bot_data["stats_service"] = StatsService(sheets)
     try:
@@ -35,6 +36,20 @@ async def _post_init(application: Application) -> None:
     except SheetsError:
         # Keep running: commands still work and every failed append is reported to the user and the log.
         logger.exception("Google Sheets is not reachable at startup; check GOOGLE_* settings and sharing")
+        return
+    await _check_trackers(tracker_service)
+
+
+async def _check_trackers(tracker_service: TrackerService) -> None:
+    """Log every registered tracker whose worksheet is missing or has a foreign header. Never fatal."""
+    trackers = await tracker_service.list_all()
+    for tracker in trackers:
+        problem = await tracker_service.check_worksheet(tracker)
+        if problem is None:
+            logger.info("tracker %r → worksheet %r ok", tracker.key, tracker.worksheet)
+        else:
+            logger.warning("tracker %r unavailable: %s", tracker.key, problem)
+    logger.info("%d tracker(s) registered", len(trackers))
 
 
 def main() -> None:
